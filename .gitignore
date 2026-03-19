@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-alphacrawl
+/alphacrawl      <-- 🌟 THE FIX: Added the forward slash
 
 # Test binary, built with `go test -c`
 *.test
@@ -27,3 +27,5 @@ pgdata/
 .vscode/
 *.swp
 *.swo
+
+.DS_Store
