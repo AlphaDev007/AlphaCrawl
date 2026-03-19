@@ -1,0 +1,34 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      # Links to the db service below
+      - DATABASE_URL=postgres://alpha:password@db:5432/crawlerdb?sslmode=disable
+      - API_SECRET_KEY=your_secret_key_here
+    depends_on:
+      db:
+        condition: service_healthy # Waits for Postgres to be ready
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: alpha
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crawlerdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mounts an init script to create tables on first run!
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alpha -d crawlerdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
