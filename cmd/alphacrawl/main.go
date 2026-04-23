@@ -11,8 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"alphacrawl/internal/api" // Adjust "alphacrawl" to your actual module name
+	"alphacrawl/internal/api"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -45,6 +46,21 @@ func main() {
 	// Use Gin's release mode for production (optional, uncomment for launch)
 	// gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		// Allow your local Next.js environment AND your future production domain
+		AllowOrigins: []string{"http://localhost:3000", "https://www.yourdomain.com"},
+
+		// Allow the standard web methods
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+
+		// CRITICAL: You must explicitly allow your custom X-API-KEY header
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "X-API-KEY"},
+
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour, // Cache the preflight OPTIONS request for 12 hours
+	}))
 
 	// Setup Routes
 	protected := r.Group("/")
